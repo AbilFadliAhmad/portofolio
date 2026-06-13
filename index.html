@@ -1,0 +1,1358 @@
+<!doctype html>
+<html lang="id" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Raka Pratama — Digital Marketer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              jungle: "#1A2E1A",
+              moss: "#2D5A27",
+              fern: "#4A7C3F",
+              wood: "#8B5E3C",
+              bark: "#5C3D2E",
+              gold: "#C9A96E",
+              cream: "#F5F0E8",
+              fog: "rgba(200,220,200,0.15)",
+            },
+            fontFamily: {
+              display: ["Playfair Display", "serif"],
+              body: ["DM Sans", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      /* ── Reset & base ── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        font-family: "DM Sans", sans-serif;
+        background: #1a2e1a;
+        color: #f5f0e8;
+      }
+      body {
+        overflow-x: hidden;
+        cursor: none;
+      }
+
+      /* ── Custom cursor ── */
+      #cursor {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: #c9a96e;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition:
+          transform 0.1s ease,
+          background 0.2s;
+        mix-blend-mode: difference;
+      }
+      #cursor-ring {
+        position: fixed;
+        width: 36px;
+        height: 36px;
+        border: 1.5px solid rgba(201, 169, 110, 0.6);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9998;
+        transform: translate(-50%, -50%);
+        transition:
+          transform 0.18s ease,
+          width 0.2s,
+          height 0.2s,
+          opacity 0.2s;
+      }
+      body:hover #cursor {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      /* ── Falling leaves ── */
+      .leaf {
+        position: fixed;
+        pointer-events: none;
+        z-index: 9990;
+        opacity: 0;
+        animation: leafFall linear forwards;
+      }
+      @keyframes leafFall {
+        0% {
+          opacity: 0;
+          transform: translateY(-20px) rotate(0deg) scale(0.8);
+        }
+        10% {
+          opacity: 0.7;
+        }
+        90% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(110vh) rotate(720deg) scale(0.6) translateX(60px);
+        }
+      }
+
+      /* ── Hero door ── */
+      #hero {
+        position: relative;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .door-panel {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: 50%;
+        z-index: 20;
+        transition: transform 1.2s cubic-bezier(0.77, 0, 0.18, 1);
+        will-change: transform;
+      }
+      #door-left {
+        left: 0;
+        transform-origin: left center;
+      }
+      #door-right {
+        right: 0;
+        transform-origin: right center;
+      }
+      .door-panel.open-left {
+        transform: translateX(-100%);
+      }
+      .door-panel.open-right {
+        transform: translateX(100%);
+      }
+
+      /* Door SVG wood texture overlay */
+      .door-wood-grain {
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(90deg, transparent, transparent 18px, rgba(0, 0, 0, 0.06) 19px);
+      }
+
+      /* ── Parallax layers ── */
+      #parallax-wrap {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        overflow: hidden;
+      }
+      .p-layer {
+        position: absolute;
+        width: 120%;
+        left: -10%;
+        will-change: transform;
+      }
+      #p-sky {
+        top: 0;
+        height: 100%;
+        background: radial-gradient(ellipse at 50% 20%, #0d1f0d 0%, #0a1a0a 60%, #000 100%);
+      }
+      #p-fog1 {
+        bottom: 0;
+        height: 45%;
+        background: linear-gradient(to top, rgba(150, 200, 150, 0.18) 0%, transparent 100%);
+        filter: blur(8px);
+      }
+      #p-fog2 {
+        bottom: 10%;
+        height: 35%;
+        background: linear-gradient(to top, rgba(180, 220, 160, 0.1) 0%, transparent 100%);
+        filter: blur(14px);
+      }
+      #p-trees-back {
+        bottom: 0;
+        height: 80%;
+      }
+      #p-trees-mid {
+        bottom: 0;
+        height: 70%;
+      }
+      #p-trees-fore {
+        bottom: 0;
+        height: 55%;
+      }
+
+      /* ── SVG tree siluet (pure CSS/SVG, no external img) ── */
+      .tree-svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* ── Hero content ── */
+      #hero-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        padding: 0 1.5rem;
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 1s ease 0.8s,
+          transform 1s ease 0.8s;
+      }
+      #hero-content.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* ── Section base ── */
+      .section {
+        position: relative;
+        z-index: 2;
+      }
+
+      /* ── Skill bar bamboo ── */
+      .bamboo-track {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 4px;
+        overflow: hidden;
+        height: 10px;
+      }
+      .bamboo-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #2d5a27, #c9a96e);
+        border-radius: 4px;
+        width: 0;
+        transition: width 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+      }
+      .bamboo-fill::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: 100%;
+        width: 6px;
+        background: #c9a96e;
+        border-radius: 3px;
+        box-shadow: 0 0 8px #c9a96e;
+      }
+      /* bamboo segments */
+      .bamboo-fill::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(90deg, transparent, transparent 22px, rgba(0, 0, 0, 0.2) 23px, rgba(0, 0, 0, 0.2) 24px);
+      }
+
+      /* ── Case study card ── */
+      .case-card {
+        border: 1px solid rgba(201, 169, 110, 0.2);
+        background: rgba(26, 46, 26, 0.6);
+        backdrop-filter: blur(8px);
+        border-radius: 16px;
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease,
+          border-color 0.3s ease;
+      }
+      .case-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+        border-color: rgba(201, 169, 110, 0.5);
+      }
+
+      /* ── Vine divider ── */
+      .vine-divider {
+        width: 100%;
+        height: 60px;
+        overflow: visible;
+        display: block;
+      }
+
+      /* ── Contact path ── */
+      #contact {
+        background: linear-gradient(to bottom, #0d1f0d, #050f05);
+      }
+      .contact-glow {
+        box-shadow:
+          0 0 60px rgba(45, 90, 39, 0.3),
+          inset 0 1px 0 rgba(201, 169, 110, 0.2);
+      }
+
+      /* ── Nav ── */
+      #nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 100;
+        transition:
+          background 0.4s,
+          backdrop-filter 0.4s;
+      }
+      #nav.scrolled {
+        background: rgba(10, 26, 10, 0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(201, 169, 110, 0.1);
+      }
+
+      /* ── Scroll reveal ── */
+      .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition:
+          opacity 0.8s ease,
+          transform 0.8s ease;
+      }
+      .reveal.in {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* ── Glow text ── */
+      .glow-gold {
+        text-shadow: 0 0 30px rgba(201, 169, 110, 0.4);
+      }
+
+      /* ── Input focus ── */
+      .jungle-input {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(201, 169, 110, 0.25);
+        color: #f5f0e8;
+        border-radius: 10px;
+        outline: none;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      .jungle-input:focus {
+        border-color: #c9a96e;
+        box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.12);
+      }
+      .jungle-input::placeholder {
+        color: rgba(245, 240, 232, 0.35);
+      }
+
+      /* ── Firefly particles ── */
+      .firefly {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: #c9a96e;
+        border-radius: 50%;
+        pointer-events: none;
+        animation: glimmer ease-in-out infinite;
+        box-shadow: 0 0 6px #c9a96e;
+      }
+      @keyframes glimmer {
+        0%,
+        100% {
+          opacity: 0;
+          transform: scale(0.5);
+        }
+        50% {
+          opacity: 0.8;
+          transform: scale(1.2);
+        }
+      }
+
+      /* reduce motion */
+      @media (prefers-reduced-motion: reduce) {
+        .leaf,
+        .firefly {
+          animation: none !important;
+        }
+        .door-panel {
+          transition: none !important;
+        }
+        #hero-content {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0a1a0a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #2d5a27;
+        border-radius: 9px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ══ Custom cursor ══ -->
+    <div id="cursor"></div>
+    <div id="cursor-ring"></div>
+
+    <!-- ══ Navbar ══ -->
+    <nav id="nav" class="py-4 px-6 md:px-16">
+      <div class="max-w-6xl mx-auto flex items-center justify-between">
+        <a href="#hero" class="font-display text-gold text-xl font-bold tracking-widest glow-gold">RP</a>
+        <ul class="hidden md:flex gap-10 text-cream text-sm font-body font-medium tracking-wider">
+          <li><a href="#about" class="hover:text-gold transition-colors duration-200">TENTANG</a></li>
+          <li><a href="#skills" class="hover:text-gold transition-colors duration-200">KEAHLIAN</a></li>
+          <li><a href="#portfolio" class="hover:text-gold transition-colors duration-200">PORTOFOLIO</a></li>
+          <li><a href="#contact" class="hover:text-gold transition-colors duration-200">KONTAK</a></li>
+        </ul>
+        <button id="mobile-menu-btn" class="md:hidden text-cream focus:outline-none" aria-label="menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+      </div>
+      <div id="mobile-menu" class="hidden md:hidden mt-4 px-6 pb-4 space-y-3 text-cream text-sm font-body">
+        <a href="#about" class="block hover:text-gold">Tentang</a>
+        <a href="#skills" class="block hover:text-gold">Keahlian</a>
+        <a href="#portfolio" class="block hover:text-gold">Portofolio</a>
+        <a href="#contact" class="block hover:text-gold">Kontak</a>
+      </div>
+    </nav>
+
+    <!-- ══════════════════════════════════════════
+     HERO SECTION — door animation + parallax
+═══════════════════════════════════════════ -->
+    <section id="hero">
+      <!-- Parallax background layers -->
+      <div id="parallax-wrap" aria-hidden="true">
+        <!-- Sky gradient -->
+        <div id="p-sky" class="p-layer"></div>
+
+        <!-- Moonlight glow -->
+        <div class="p-layer" id="p-moon" style="top: 8%; left: 30%; width: 40%; height: 35%">
+          <div style="width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, rgba(201, 169, 110, 0.15) 0%, transparent 70%); filter: blur(20px); margin: auto"></div>
+        </div>
+
+        <!-- Back trees (silhouette) -->
+        <div id="p-trees-back" class="p-layer">
+          <svg class="tree-svg" viewBox="0 0 1440 600" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+            <!-- Generated tall jungle tree silhouettes -->
+            <g fill="#0d1f0d">
+              <rect x="60" y="50" width="18" height="550" />
+              <ellipse cx="69" cy="80" rx="55" ry="100" />
+              <ellipse cx="69" cy="150" rx="70" ry="80" />
+
+              <rect x="200" y="100" width="14" height="500" />
+              <ellipse cx="207" cy="130" rx="45" ry="90" />
+              <ellipse cx="207" cy="200" rx="60" ry="70" />
+
+              <rect x="340" y="20" width="20" height="580" />
+              <ellipse cx="350" cy="60" rx="65" ry="120" />
+              <ellipse cx="350" cy="160" rx="80" ry="90" />
+
+              <rect x="500" y="70" width="16" height="530" />
+              <ellipse cx="508" cy="100" rx="50" ry="95" />
+
+              <rect x="640" y="30" width="22" height="570" />
+              <ellipse cx="651" cy="70" rx="70" ry="130" />
+              <ellipse cx="651" cy="180" rx="85" ry="95" />
+
+              <rect x="800" y="80" width="15" height="520" />
+              <ellipse cx="807" cy="110" rx="48" ry="88" />
+
+              <rect x="950" y="40" width="20" height="560" />
+              <ellipse cx="960" cy="75" rx="62" ry="115" />
+              <ellipse cx="960" cy="170" rx="78" ry="88" />
+
+              <rect x="1100" y="60" width="17" height="540" />
+              <ellipse cx="1108" cy="95" rx="52" ry="98" />
+
+              <rect x="1250" y="25" width="21" height="575" />
+              <ellipse cx="1260" cy="65" rx="68" ry="125" />
+              <ellipse cx="1260" cy="170" rx="82" ry="92" />
+
+              <rect x="1380" y="55" width="16" height="545" />
+              <ellipse cx="1388" cy="88" rx="46" ry="85" />
+            </g>
+          </svg>
+        </div>
+
+        <!-- Mid trees -->
+        <div id="p-trees-mid" class="p-layer">
+          <svg class="tree-svg" viewBox="0 0 1440 500" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#142214">
+              <rect x="0" y="60" width="22" height="440" />
+              <ellipse cx="11" cy="90" rx="60" ry="110" />
+
+              <rect x="130" y="20" width="18" height="480" />
+              <ellipse cx="139" cy="55" rx="55" ry="105" />
+              <ellipse cx="139" cy="140" rx="70" ry="80" />
+
+              <rect x="280" y="80" width="20" height="420" />
+              <ellipse cx="290" cy="115" rx="58" ry="105" />
+
+              <rect x="430" y="30" width="24" height="470" />
+              <ellipse cx="442" cy="70" rx="72" ry="130" />
+              <ellipse cx="442" cy="180" rx="88" ry="95" />
+
+              <rect x="590" y="50" width="16" height="450" />
+              <ellipse cx="598" cy="82" rx="48" ry="90" />
+
+              <rect x="720" y="10" width="22" height="490" />
+              <ellipse cx="731" cy="48" rx="68" ry="125" />
+              <ellipse cx="731" cy="155" rx="84" ry="92" />
+
+              <rect x="870" y="45" width="18" height="455" />
+              <ellipse cx="879" cy="78" rx="54" ry="100" />
+
+              <rect x="1010" y="25" width="20" height="475" />
+              <ellipse cx="1020" cy="62" rx="64" ry="118" />
+              <ellipse cx="1020" cy="162" rx="80" ry="88" />
+
+              <rect x="1160" y="55" width="16" height="445" />
+              <ellipse cx="1168" cy="88" rx="50" ry="94" />
+
+              <rect x="1290" y="35" width="22" height="465" />
+              <ellipse cx="1301" cy="72" rx="66" ry="122" />
+
+              <rect x="1420" y="50" width="20" height="450" />
+              <ellipse cx="1430" cy="84" rx="58" ry="108" />
+            </g>
+          </svg>
+        </div>
+
+        <!-- Foreground branches -->
+        <div id="p-trees-fore" class="p-layer">
+          <svg class="tree-svg" viewBox="0 0 1440 400" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#0a1a0a">
+              <!-- Left thick trunk + wide canopy -->
+              <rect x="-10" y="80" width="30" height="320" />
+              <ellipse cx="5" cy="110" rx="80" ry="140" />
+              <ellipse cx="5" cy="230" rx="100" ry="100" />
+              <!-- dangling vines left -->
+              <path d="M-20,0 Q10,80 -5,200 Q-20,280 5,400" stroke="#0a1a0a" stroke-width="4" fill="none" />
+              <path d="M40,0  Q70,90  55,210 Q40,300 65,400" stroke="#0a1a0a" stroke-width="3" fill="none" />
+
+              <!-- Right thick trunk + wide canopy -->
+              <rect x="1420" y="60" width="30" height="340" />
+              <ellipse cx="1435" cy="90" rx="80" ry="145" />
+              <ellipse cx="1435" cy="210" rx="100" ry="105" />
+              <!-- dangling vines right -->
+              <path d="M1460,0 Q1430,80 1445,200 Q1460,280 1435,400" stroke="#0a1a0a" stroke-width="4" fill="none" />
+              <path d="M1400,0 Q1370,90  1385,210 Q1400,300 1375,400" stroke="#0a1a0a" stroke-width="3" fill="none" />
+
+              <!-- Ground cover -->
+              <ellipse cx="720" cy="400" rx="800" ry="60" />
+            </g>
+          </svg>
+        </div>
+
+        <!-- Fog bottom -->
+        <div id="p-fog1" class="p-layer"></div>
+        <div id="p-fog2" class="p-layer"></div>
+
+        <!-- Fireflies container -->
+        <div id="fireflies"></div>
+      </div>
+
+      <!-- ── Door panels ── -->
+      <!-- Left door -->
+      <div id="door-left" class="door-panel" aria-hidden="true">
+        <div class="w-full h-full relative overflow-hidden" style="background: linear-gradient(135deg, #3b2314 0%, #5c3d2e 40%, #4a2e1c 100%)">
+          <!-- Wood grain lines -->
+          <div class="door-wood-grain"></div>
+          <!-- Horizontal planks -->
+          <div style="position: absolute; inset: 0; background: repeating-linear-gradient(180deg, transparent, transparent 60px, rgba(0, 0, 0, 0.12) 61px, rgba(0, 0, 0, 0.12) 62px)"></div>
+          <!-- Knot detail -->
+          <div style="position: absolute; top: 38%; left: 70%; width: 30px; height: 20px; border-radius: 50%; border: 2px solid rgba(0, 0, 0, 0.25); opacity: 0.5"></div>
+          <div style="position: absolute; top: 62%; left: 55%; width: 22px; height: 14px; border-radius: 50%; border: 2px solid rgba(0, 0, 0, 0.2); opacity: 0.4"></div>
+          <!-- Moss patches -->
+          <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 120px; background: linear-gradient(to top, rgba(45, 90, 39, 0.5), transparent)"></div>
+          <!-- Iron hinge bar -->
+          <div style="position: absolute; top: 15%; right: 0; width: 24px; height: 60px; background: #1a1a1a; border-radius: 4px 0 0 4px"></div>
+          <div style="position: absolute; top: 50%; right: 0; width: 24px; height: 60px; background: #1a1a1a; border-radius: 4px 0 0 4px; transform: translateY(-50%)"></div>
+          <div style="position: absolute; bottom: 15%; right: 0; width: 24px; height: 60px; background: #1a1a1a; border-radius: 4px 0 0 4px"></div>
+          <!-- Vines on door -->
+          <svg style="position: absolute; inset: 0; width: 100%; height: 100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M30,0 Q20,25 35,50 Q50,75 30,100" stroke="rgba(45,90,39,.6)" stroke-width="1.5" fill="none" />
+            <path d="M70,0 Q80,30 65,60 Q50,85 75,100" stroke="rgba(45,90,39,.5)" stroke-width="1" fill="none" />
+            <circle cx="35" cy="30" r="3" fill="rgba(74,124,63,.5)" />
+            <circle cx="65" cy="55" r="2" fill="rgba(74,124,63,.4)" />
+          </svg>
+          <!-- Door handle on right edge -->
+          <div
+            style="
+              position: absolute;
+              top: 50%;
+              right: 8px;
+              transform: translateY(-50%);
+              width: 12px;
+              height: 40px;
+              background: radial-gradient(circle at 30%, #8b5e3c, #5c3d2e);
+              border-radius: 8px;
+              box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+            "
+          ></div>
+        </div>
+      </div>
+
+      <!-- Right door -->
+      <div id="door-right" class="door-panel" aria-hidden="true">
+        <div class="w-full h-full relative overflow-hidden" style="background: linear-gradient(225deg, #3b2314 0%, #5c3d2e 40%, #4a2e1c 100%)">
+          <div class="door-wood-grain"></div>
+          <div style="position: absolute; inset: 0; background: repeating-linear-gradient(180deg, transparent, transparent 60px, rgba(0, 0, 0, 0.12) 61px, rgba(0, 0, 0, 0.12) 62px)"></div>
+          <div style="position: absolute; top: 30%; right: 70%; width: 28px; height: 18px; border-radius: 50%; border: 2px solid rgba(0, 0, 0, 0.22); opacity: 0.45"></div>
+          <div style="position:absolute;top:58%;right:50%;width:20px;height=13px;border-radius:50%;border:2px solid rgba(0,0,0,.18);opacity:.35;"></div>
+          <div style="position: absolute; bottom: 0; right: 0; width: 100%; height: 120px; background: linear-gradient(to top, rgba(45, 90, 39, 0.5), transparent)"></div>
+          <div style="position: absolute; top: 15%; left: 0; width: 24px; height: 60px; background: #1a1a1a; border-radius: 0 4px 4px 0"></div>
+          <div style="position: absolute; top: 50%; left: 0; width: 24px; height: 60px; background: #1a1a1a; border-radius: 0 4px 4px 0; transform: translateY(-50%)"></div>
+          <div style="position: absolute; bottom: 15%; left: 0; width: 24px; height: 60px; background: #1a1a1a; border-radius: 0 4px 4px 0"></div>
+          <svg style="position: absolute; inset: 0; width: 100%; height: 100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M70,0 Q80,25 65,50 Q50,75 70,100" stroke="rgba(45,90,39,.6)" stroke-width="1.5" fill="none" />
+            <path d="M30,0 Q20,30 35,60 Q50,85 25,100" stroke="rgba(45,90,39,.5)" stroke-width="1" fill="none" />
+            <circle cx="65" cy="28" r="3" fill="rgba(74,124,63,.5)" />
+            <circle cx="35" cy="58" r="2" fill="rgba(74,124,63,.4)" />
+          </svg>
+          <div
+            style="
+              position: absolute;
+              top: 50%;
+              left: 8px;
+              transform: translateY(-50%);
+              width: 12px;
+              height: 40px;
+              background: radial-gradient(circle at 70%, #8b5e3c, #5c3d2e);
+              border-radius: 8px;
+              box-shadow: -2px 2px 6px rgba(0, 0, 0, 0.5);
+            "
+          ></div>
+        </div>
+      </div>
+
+      <!-- ── Hero content ── -->
+      <div id="hero-content" class="relative z-10 text-center max-w-3xl mx-auto px-6">
+        <p class="font-body text-gold tracking-[0.35em] text-xs uppercase mb-6 opacity-90">Digital Marketing Strategist</p>
+        <h1 class="font-display text-cream text-5xl md:text-7xl font-black leading-tight mb-6 glow-gold">Abil<br />Fadli</h1>
+        <p class="font-body text-cream/75 text-base md:text-lg leading-relaxed mb-10 max-w-xl mx-auto">
+          Growth-Driven Digital Marketer<br />
+          <span class="text-gold font-medium">Mengubah Data Menjadi Strategi,<br />Strategi Menjadi Pertumbuhan.</span>
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="#portfolio" class="px-8 py-3.5 bg-gold text-jungle font-body font-semibold text-sm tracking-wider rounded-full hover:bg-cream transition-colors duration-300 shadow-lg"> Lihat Portofolio </a>
+          <a href="#contact" class="px-8 py-3.5 border border-gold/50 text-gold font-body font-medium text-sm tracking-wider rounded-full hover:bg-gold/10 transition-colors duration-300"> Hubungi Saya </a>
+        </div>
+        <!-- Scroll indicator -->
+        <div class="mt-16 flex flex-col items-center gap-2 opacity-60">
+          <p class="font-body text-cream text-xs tracking-widest uppercase">Scroll untuk menjelajah</p>
+          <div style="width: 1px; height: 40px; background: linear-gradient(to bottom, rgba(201, 169, 110, 0.8), transparent); animation: pulse 2s ease-in-out infinite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+     ABOUT SECTION
+═══════════════════════════════════════════ -->
+    <section id="about" class="section py-28 px-6 md:px-16 relative overflow-hidden">
+      <!-- Subtle bg pattern -->
+      <div style="position: absolute; inset: 0; background: linear-gradient(180deg, #1a2e1a 0%, #142214 100%); z-index: 0"></div>
+      <div style="position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(45, 90, 39, 0.2), transparent 60%); z-index: 0"></div>
+
+      <div class="relative z-10 max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <!-- Portrait placeholder with decorative frame -->
+        <div class="reveal flex justify-center">
+          <div class="relative" style="width: 280px; height: 340px">
+            <!-- Decorative vine frame -->
+            <div style="position: absolute; inset: -18px; border: 1px solid rgba(201, 169, 110, 0.25); border-radius: 24px"></div>
+            <div style="position: absolute; inset: -6px; border: 1px solid rgba(45, 90, 39, 0.4); border-radius: 20px"></div>
+            <!-- Photo area -->
+            <div style="width: 100%; height: 100%; border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, #1f3d1f, #2d5a27)">
+              <!-- Illustrated avatar SVG -->
+              <svg viewBox="0 0 280 340" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%">
+                <!-- Forest background -->
+                <rect width="280" height="340" fill="#1A2E1A" />
+                <!-- Foliage -->
+                <ellipse cx="140" cy="20" rx="100" ry="60" fill="#2D5A27" opacity=".7" />
+                <ellipse cx="60" cy="40" rx="60" ry="50" fill="#1f3d1f" opacity=".8" />
+                <ellipse cx="220" cy="35" rx="65" ry="48" fill="#1f3d1f" opacity=".8" />
+                <!-- Torso -->
+                <rect x="95" y="220" width="90" height="120" rx="10" fill="#5C3D2E" />
+                <!-- Neck -->
+                <rect x="125" y="195" width="30" height="30" rx="8" fill="#c8a882" />
+                <!-- Head -->
+                <ellipse cx="140" cy="175" rx="48" ry="52" fill="#c8a882" />
+                <!-- Hair -->
+                <ellipse cx="140" cy="138" rx="50" ry="30" fill="#2a1a0e" />
+                <ellipse cx="100" cy="158" rx="18" ry="28" fill="#2a1a0e" />
+                <ellipse cx="180" cy="158" rx="18" ry="28" fill="#2a1a0e" />
+                <!-- Eyes -->
+                <ellipse cx="124" cy="175" rx="7" ry="8" fill="#fff" />
+                <ellipse cx="156" cy="175" rx="7" ry="8" fill="#fff" />
+                <circle cx="125" cy="176" r="4" fill="#2a1a0e" />
+                <circle cx="157" cy="176" r="4" fill="#2a1a0e" />
+                <!-- Smile -->
+                <path d="M125,195 Q140,208 155,195" stroke="#2a1a0e" stroke-width="2" fill="none" stroke-linecap="round" />
+                <!-- Jacket collar -->
+                <path d="M110,220 L140,240 L170,220" stroke="#C9A96E" stroke-width="2" fill="none" />
+                <!-- Gold accent badge -->
+                <circle cx="165" cy="248" r="10" fill="#C9A96E" opacity=".9" />
+                <text x="165" y="252" text-anchor="middle" font-size="8" fill="#1A2E1A" font-weight="bold">DM</text>
+              </svg>
+            </div>
+            <!-- Corner leaf decorations -->
+            <svg style="position: absolute; top: -12px; left: -12px; width: 32px; height: 32px" viewBox="0 0 32 32">
+              <path d="M2,30 Q2,2 30,2" stroke="#2D5A27" stroke-width="2" fill="none" />
+              <ellipse cx="16" cy="12" rx="8" ry="6" fill="#2D5A27" transform="rotate(-45 16 12)" opacity=".7" />
+            </svg>
+            <svg style="position: absolute; bottom: -12px; right: -12px; width: 32px; height: 32px" viewBox="0 0 32 32">
+              <path d="M30,2 Q30,30 2,30" stroke="#2D5A27" stroke-width="2" fill="none" />
+              <ellipse cx="16" cy="20" rx="8" ry="6" fill="#2D5A27" transform="rotate(135 16 20)" opacity=".7" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Bio text -->
+        <div class="reveal" style="transition-delay: 0.15s">
+          <p class="font-body text-gold tracking-[.25em] text-xs uppercase mb-4">Tentang Saya</p>
+          <h2 class="font-display text-cream text-4xl md:text-5xl font-bold leading-tight mb-6">Penjelajah<br /><em class="text-gold">Rimba Digital</em></h2>
+          <p class="font-body text-cream/70 text-base leading-relaxed mb-5">
+            Selama 5+ tahun, saya telah menavigasi ekosistem digital yang kompleks — dari labirin algoritma mesin pencari hingga hutan data yang lebat. Setiap kampanye adalah sebuah ekspedisi: penuh tantangan, penuh penemuan.
+          </p>
+          <p class="font-body text-cream/70 text-base leading-relaxed mb-8">
+            Saya percaya pertumbuhan sejati lahir dari perpaduan antara <span class="text-gold">analisis yang tajam</span>, kreativitas yang berani, dan pemahaman mendalam tentang perilaku manusia. Saya tidak sekadar menjalankan iklan —
+            saya membangun ekosistem brand yang berkelanjutan.
+          </p>
+
+          <!-- Stats row -->
+          <div class="grid grid-cols-3 gap-4">
+            <div class="text-center p-4 rounded-xl" style="background: rgba(45, 90, 39, 0.2); border: 1px solid rgba(201, 169, 110, 0.15)">
+              <p class="font-display text-gold text-3xl font-bold">50+</p>
+              <p class="font-body text-cream/60 text-xs mt-1">Proyek Berhasil</p>
+            </div>
+            <div class="text-center p-4 rounded-xl" style="background: rgba(45, 90, 39, 0.2); border: 1px solid rgba(201, 169, 110, 0.15)">
+              <p class="font-display text-gold text-3xl font-bold">5x</p>
+              <p class="font-body text-cream/60 text-xs mt-1">Rata-rata ROAS</p>
+            </div>
+            <div class="text-center p-4 rounded-xl" style="background: rgba(45, 90, 39, 0.2); border: 1px solid rgba(201, 169, 110, 0.15)">
+              <p class="font-display text-gold text-3xl font-bold">30+</p>
+              <p class="font-body text-cream/60 text-xs mt-1">Klien Puas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+     SKILLS SECTION
+═══════════════════════════════════════════ -->
+    <section id="skills" class="section py-28 px-6 md:px-16 relative overflow-hidden">
+      <div style="position: absolute; inset: 0; background: linear-gradient(180deg, #142214 0%, #0d1f0d 100%); z-index: 0"></div>
+      <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 300px; background: linear-gradient(to top, rgba(45, 90, 39, 0.1), transparent); z-index: 0"></div>
+
+      <div class="relative z-10 max-w-6xl mx-auto">
+        <div class="text-center mb-16 reveal">
+          <p class="font-body text-gold tracking-[.25em] text-xs uppercase mb-4">Keahlian Saya</p>
+          <h2 class="font-display text-cream text-4xl md:text-5xl font-bold">Senjata dalam<br /><em class="text-gold">Koper Eksplorasi</em></h2>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-10">
+          <!-- Left: bamboo skill bars -->
+          <div class="space-y-8 reveal">
+            <!-- Skill items -->
+            <div class="skill-item" data-value="92">
+              <div class="flex justify-between mb-2">
+                <span class="font-body text-cream font-medium text-sm">SEO / SEM</span>
+                <span class="font-body text-gold text-sm skill-pct">0%</span>
+              </div>
+              <div class="bamboo-track"><div class="bamboo-fill" style="width: 0"></div></div>
+            </div>
+            <div class="skill-item" data-value="88">
+              <div class="flex justify-between mb-2">
+                <span class="font-body text-cream font-medium text-sm">Meta Ads & Google Ads</span>
+                <span class="font-body text-gold text-sm skill-pct">0%</span>
+              </div>
+              <div class="bamboo-track"><div class="bamboo-fill" style="width: 0"></div></div>
+            </div>
+            <div class="skill-item" data-value="85">
+              <div class="flex justify-between mb-2">
+                <span class="font-body text-cream font-medium text-sm">Content Strategy</span>
+                <span class="font-body text-gold text-sm skill-pct">0%</span>
+              </div>
+              <div class="bamboo-track"><div class="bamboo-fill" style="width: 0"></div></div>
+            </div>
+            <div class="skill-item" data-value="80">
+              <div class="flex justify-between mb-2">
+                <span class="font-body text-cream font-medium text-sm">Google Analytics 4</span>
+                <span class="font-body text-gold text-sm skill-pct">0%</span>
+              </div>
+              <div class="bamboo-track"><div class="bamboo-fill" style="width: 0"></div></div>
+            </div>
+            <div class="skill-item" data-value="90">
+              <div class="flex justify-between mb-2">
+                <span class="font-body text-cream font-medium text-sm">Copywriting & Storytelling</span>
+                <span class="font-body text-gold text-sm skill-pct">0%</span>
+              </div>
+              <div class="bamboo-track"><div class="bamboo-fill" style="width: 0"></div></div>
+            </div>
+            <div class="skill-item" data-value="78">
+              <div class="flex justify-between mb-2">
+                <span class="font-body text-cream font-medium text-sm">Email Marketing & CRM</span>
+                <span class="font-body text-gold text-sm skill-pct">0%</span>
+              </div>
+              <div class="bamboo-track"><div class="bamboo-fill" style="width: 0"></div></div>
+            </div>
+          </div>
+
+          <!-- Right: tool badge cards -->
+          <div class="reveal" style="transition-delay: 0.2s">
+            <p class="font-body text-cream/50 text-xs uppercase tracking-widest mb-6">Platform & Tools</p>
+            <div class="flex flex-wrap gap-3">
+              <!-- Tool badges with hover effect -->
+              <span class="tool-badge px-4 py-2 rounded-full font-body text-sm font-medium text-cream cursor-default" style="background: rgba(45, 90, 39, 0.4); border: 1px solid rgba(201, 169, 110, 0.2); transition: all 0.25s"
+                >Meta Business Suite</span
+              >
+              <span class="tool-badge px-4 py-2 rounded-full font-body text-sm font-medium text-cream cursor-default" style="background: rgba(45, 90, 39, 0.4); border: 1px solid rgba(201, 169, 110, 0.2); transition: all 0.25s"
+                >Google Search Console</span
+              >
+              <span class="tool-badge px-4 py-2 rounded-full font-body text-sm font-medium text-cream cursor-default" style="background: rgba(45, 90, 39, 0.4); border: 1px solid rgba(201, 169, 110, 0.2); transition: all 0.25s">Ahrefs</span>
+              <span class="tool-badge px-4 py-2 rounded-full font-body text-sm font-medium text-cream cursor-default" style="background: rgba(45, 90, 39, 0.4); border: 1px solid rgba(201, 169, 110, 0.2); transition: all 0.25s"
+                >HubSpot</span
+              >
+              <span class="tool-badge px-4 py-2 rounded-full font-body text-sm font-medium text-cream cursor-default" style="background: rgba(45, 90, 39, 0.4); border: 1px solid rgba(201, 169, 110, 0.2); transition: all 0.25s"
+                >Semrush</span
+              >
+              <span class="tool-badge px-4 py-2 rounded-full font-body text-sm font-medium text-cream cursor-default" style="background: rgba(45, 90, 39, 0.4); border: 1px solid rgba(201, 169, 110, 0.2); transition: all 0.25s"
+                >Canva Pro</span
+              >
+              <span class="tool-badge px-4 py-2 rounded-full font-body text-sm font-medium text-cream cursor-default" style="background: rgba(45, 90, 39, 0.4); border: 1px solid rgba(201, 169, 110, 0.2); transition: all 0.25s"
+                >Mailchimp</span
+              >
+              <span class="tool-badge px-4 py-2 rounded-full font-body text-sm font-medium text-cream cursor-default" style="background: rgba(45, 90, 39, 0.4); border: 1px solid rgba(201, 169, 110, 0.2); transition: all 0.25s"
+                >Looker Studio</span
+              >
+              <span class="tool-badge px-4 py-2 rounded-full font-body text-sm font-medium text-cream cursor-default" style="background: rgba(45, 90, 39, 0.4); border: 1px solid rgba(201, 169, 110, 0.2); transition: all 0.25s"
+                >TikTok Ads Manager</span
+              >
+              <span class="tool-badge px-4 py-2 rounded-full font-body text-sm font-medium text-cream cursor-default" style="background: rgba(45, 90, 39, 0.4); border: 1px solid rgba(201, 169, 110, 0.2); transition: all 0.25s">Notion</span>
+              <span class="tool-badge px-4 py-2 rounded-full font-body text-sm font-medium text-cream cursor-default" style="background: rgba(45, 90, 39, 0.4); border: 1px solid rgba(201, 169, 110, 0.2); transition: all 0.25s">Zapier</span>
+              <span class="tool-badge px-4 py-2 rounded-full font-body text-sm font-medium text-cream cursor-default" style="background: rgba(45, 90, 39, 0.4); border: 1px solid rgba(201, 169, 110, 0.2); transition: all 0.25s">Hotjar</span>
+            </div>
+
+            <!-- Philosophy card -->
+            <div class="mt-8 p-6 rounded-2xl" style="background: rgba(201, 169, 110, 0.08); border: 1px solid rgba(201, 169, 110, 0.2)">
+              <p class="font-display text-gold italic text-lg leading-relaxed">"Data adalah kompas. Kreativitas adalah jalur. Pertumbuhan adalah destinasi."</p>
+              <p class="font-body text-cream/40 text-xs mt-3">— Filosofi Kerja</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+     PORTFOLIO / CASE STUDIES
+═══════════════════════════════════════════ -->
+    <section id="portfolio" class="section py-28 px-6 md:px-16 relative overflow-hidden">
+      <div style="position: absolute; inset: 0; background: linear-gradient(180deg, #0d1f0d 0%, #1a2e1a 100%); z-index: 0"></div>
+
+      <div class="relative z-10 max-w-6xl mx-auto">
+        <div class="text-center mb-16 reveal">
+          <p class="font-body text-gold tracking-[.25em] text-xs uppercase mb-4">Case Studies</p>
+          <h2 class="font-display text-cream text-4xl md:text-5xl font-bold">Jejak di<br /><em class="text-gold">Rimba Pemasaran</em></h2>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Card 1 -->
+          <div class="case-card p-6 reveal" style="transition-delay: 0.05s">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(201, 169, 110, 0.15)">
+                <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20" style="color: #c9a96e">
+                  <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                </svg>
+              </div>
+              <span class="font-body text-gold text-xs tracking-widest uppercase">E-Commerce</span>
+            </div>
+            <h3 class="font-display text-cream text-xl font-bold mb-2">Fashion Brand — Meta Ads</h3>
+            <p class="font-body text-cream/60 text-sm leading-relaxed mb-5">Kampanye retargeting berbasis data perilaku pengguna untuk brand fashion lokal yang stagnan.</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-lg p-3 text-center" style="background: rgba(45, 90, 39, 0.3)">
+                <p class="font-display text-gold text-2xl font-bold">+150%</p>
+                <p class="font-body text-cream/50 text-xs">ROI</p>
+              </div>
+              <div class="rounded-lg p-3 text-center" style="background: rgba(45, 90, 39, 0.3)">
+                <p class="font-display text-gold text-2xl font-bold">-42%</p>
+                <p class="font-body text-cream/50 text-xs">Cost per Purchase</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="case-card p-6 reveal" style="transition-delay: 0.12s">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(201, 169, 110, 0.15)">
+                <svg class="w-5 h-5" fill="none" stroke="#C9A96E" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              </div>
+              <span class="font-body text-gold text-xs tracking-widest uppercase">SEO</span>
+            </div>
+            <h3 class="font-display text-cream text-xl font-bold mb-2">SaaS Startup — Organic Growth</h3>
+            <p class="font-body text-cream/60 text-sm leading-relaxed mb-5">Strategi konten pilar + cluster topic untuk platform SaaS B2B yang baru memasuki pasar.</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-lg p-3 text-center" style="background: rgba(45, 90, 39, 0.3)">
+                <p class="font-display text-gold text-2xl font-bold">+10K</p>
+                <p class="font-body text-cream/50 text-xs">Organic Traffic/bln</p>
+              </div>
+              <div class="rounded-lg p-3 text-center" style="background: rgba(45, 90, 39, 0.3)">
+                <p class="font-display text-gold text-2xl font-bold">Top 3</p>
+                <p class="font-body text-cream/50 text-xs">Keyword Utama</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="case-card p-6 reveal" style="transition-delay: 0.19s">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(201, 169, 110, 0.15)">
+                <svg class="w-5 h-5" fill="none" stroke="#C9A96E" stroke-width="2" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                  />
+                </svg>
+              </div>
+              <span class="font-body text-gold text-xs tracking-widest uppercase">Email Marketing</span>
+            </div>
+            <h3 class="font-display text-cream text-xl font-bold mb-2">F&B Brand — Drip Campaign</h3>
+            <p class="font-body text-cream/60 text-sm leading-relaxed mb-5">Automation email nurturing berbasis segmentasi perilaku untuk meningkatkan repeat order.</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-lg p-3 text-center" style="background: rgba(45, 90, 39, 0.3)">
+                <p class="font-display text-gold text-2xl font-bold">+68%</p>
+                <p class="font-body text-cream/50 text-xs">Open Rate</p>
+              </div>
+              <div class="rounded-lg p-3 text-center" style="background: rgba(45, 90, 39, 0.3)">
+                <p class="font-display text-gold text-2xl font-bold">3.2x</p>
+                <p class="font-body text-cream/50 text-xs">Repeat Order</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="case-card p-6 reveal" style="transition-delay: 0.07s">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(201, 169, 110, 0.15)">
+                <svg class="w-5 h-5" fill="none" stroke="#C9A96E" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 4V2m10 2V2M3 10h18M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <span class="font-body text-gold text-xs tracking-widest uppercase">Google Ads</span>
+            </div>
+            <h3 class="font-display text-cream text-xl font-bold mb-2">Property Developer — PPC</h3>
+            <p class="font-body text-cream/60 text-sm leading-relaxed mb-5">Kampanye Google Search & Display untuk properti high-ticket dengan funnel konversi berlapis.</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-lg p-3 text-center" style="background: rgba(45, 90, 39, 0.3)">
+                <p class="font-display text-gold text-2xl font-bold">280%</p>
+                <p class="font-body text-cream/50 text-xs">ROAS</p>
+              </div>
+              <div class="rounded-lg p-3 text-center" style="background: rgba(45, 90, 39, 0.3)">
+                <p class="font-display text-gold text-2xl font-bold">-55%</p>
+                <p class="font-body text-cream/50 text-xs">CPL</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="case-card p-6 reveal" style="transition-delay: 0.14s">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(201, 169, 110, 0.15)">
+                <svg class="w-5 h-5" fill="none" stroke="#C9A96E" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              </div>
+              <span class="font-body text-gold text-xs tracking-widest uppercase">Brand Awareness</span>
+            </div>
+            <h3 class="font-display text-cream text-xl font-bold mb-2">FMCG Brand — TikTok Campaign</h3>
+            <p class="font-body text-cream/60 text-sm leading-relaxed mb-5">Konten UGC + paid amplification untuk produk FMCG baru yang menarget Gen Z.</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-lg p-3 text-center" style="background: rgba(45, 90, 39, 0.3)">
+                <p class="font-display text-gold text-2xl font-bold">12M+</p>
+                <p class="font-body text-cream/50 text-xs">Total Impresi</p>
+              </div>
+              <div class="rounded-lg p-3 text-center" style="background: rgba(45, 90, 39, 0.3)">
+                <p class="font-display text-gold text-2xl font-bold">4.8%</p>
+                <p class="font-body text-cream/50 text-xs">Engagement Rate</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6 — CTA card -->
+          <div
+            class="case-card p-6 reveal flex flex-col justify-center items-center text-center"
+            style="transition-delay: 0.21s; background: linear-gradient(135deg, rgba(45, 90, 39, 0.3), rgba(201, 169, 110, 0.1)); border-color: rgba(201, 169, 110, 0.35)"
+          >
+            <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4" style="background: rgba(201, 169, 110, 0.15); border: 1px solid rgba(201, 169, 110, 0.3)">
+              <svg class="w-6 h-6" fill="none" stroke="#C9A96E" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+            </div>
+            <h3 class="font-display text-cream text-xl font-bold mb-3">Proyek Anda Bisa Jadi Berikutnya</h3>
+            <p class="font-body text-cream/60 text-sm mb-6">Mari diskusikan bagaimana kita bisa tumbuh bersama.</p>
+            <a href="#contact" class="px-6 py-2.5 bg-gold text-jungle font-body font-semibold text-sm rounded-full hover:bg-cream transition-colors duration-300"> Mulai Diskusi </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+     CONTACT SECTION
+═══════════════════════════════════════════ -->
+    <section id="contact" class="section py-28 px-6 md:px-16 relative overflow-hidden">
+      <div style="position: absolute; inset: 0; background: linear-gradient(180deg, #1a2e1a 0%, #050f05 100%); z-index: 0"></div>
+
+      <!-- Foreground forest silhouette for "end of path" feel -->
+      <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 180px; z-index: 1; overflow: hidden">
+        <svg viewBox="0 0 1440 180" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%">
+          <g fill="#050f05">
+            <path d="M0,180 L0,60 Q60,20 120,60 Q180,100 240,40 Q300,0 360,50 Q420,90 480,30 Q540,0 600,60 Q660,100 720,40 Q780,0 840,55 Q900,100 960,35 Q1020,0 1080,60 Q1140,100 1200,40 Q1260,0 1320,55 L1440,40 L1440,180 Z" />
+          </g>
+        </svg>
+      </div>
+
+      <div class="relative z-10 max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start">
+        <!-- Left: copy -->
+        <div class="reveal">
+          <p class="font-body text-gold tracking-[.25em] text-xs uppercase mb-4">Hubungi Saya</p>
+          <h2 class="font-display text-cream text-4xl md:text-5xl font-bold leading-tight mb-6">Ujung Jalan<br /><em class="text-gold">Setapak Hutan</em></h2>
+          <p class="font-body text-cream/65 text-base leading-relaxed mb-8">Setiap ekspedisi besar dimulai dari satu langkah kecil. Apakah itu audit strategi, kampanye baru, atau sekadar diskusi santai — saya siap mendengarkan.</p>
+
+          <!-- Contact info -->
+          <div class="space-y-4">
+            <a href="mailto:raka@example.com" class="flex items-center gap-4 group">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(201, 169, 110, 0.12); border: 1px solid rgba(201, 169, 110, 0.2)">
+                <svg class="w-4 h-4" fill="none" stroke="#C9A96E" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <span class="font-body text-cream/70 text-sm group-hover:text-gold transition-colors">raka@example.com</span>
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener" class="flex items-center gap-4 group">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(201, 169, 110, 0.12); border: 1px solid rgba(201, 169, 110, 0.2)">
+                <svg class="w-4 h-4" fill="#C9A96E" viewBox="0 0 24 24">
+                  <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" />
+                  <circle cx="4" cy="4" r="2" />
+                </svg>
+              </div>
+              <span class="font-body text-cream/70 text-sm group-hover:text-gold transition-colors">linkedin.com/in/rakapratama</span>
+            </a>
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(201, 169, 110, 0.12); border: 1px solid rgba(201, 169, 110, 0.2)">
+                <svg class="w-4 h-4" fill="none" stroke="#C9A96E" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <span class="font-body text-cream/70 text-sm">Surabaya, Jawa Timur 🌿</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: form -->
+        <div class="reveal" style="transition-delay: 0.15s">
+          <div class="p-8 rounded-2xl contact-glow" style="background: rgba(26, 46, 26, 0.7); border: 1px solid rgba(201, 169, 110, 0.18)">
+            <div class="space-y-5">
+              <div>
+                <label class="font-body text-cream/60 text-xs uppercase tracking-wider block mb-2">Nama Lengkap</label>
+                <input type="text" placeholder="Siapa namamu, penjelajah?" class="jungle-input w-full px-4 py-3 text-sm font-body" />
+              </div>
+              <div>
+                <label class="font-body text-cream/60 text-xs uppercase tracking-wider block mb-2">Email</label>
+                <input type="email" placeholder="email@example.com" class="jungle-input w-full px-4 py-3 text-sm font-body" />
+              </div>
+              <div>
+                <label class="font-body text-cream/60 text-xs uppercase tracking-wider block mb-2">Topik Diskusi</label>
+                <select class="jungle-input w-full px-4 py-3 text-sm font-body" style="appearance: none">
+                  <option value="" style="background: #1a2e1a">Pilih topik...</option>
+                  <option value="seo" style="background: #1a2e1a">SEO / Content Strategy</option>
+                  <option value="ads" style="background: #1a2e1a">Paid Advertising</option>
+                  <option value="branding" style="background: #1a2e1a">Brand Awareness</option>
+                  <option value="konsultasi" style="background: #1a2e1a">Konsultasi Umum</option>
+                </select>
+              </div>
+              <div>
+                <label class="font-body text-cream/60 text-xs uppercase tracking-wider block mb-2">Pesan</label>
+                <textarea rows="4" placeholder="Ceritakan tentang proyekmu..." class="jungle-input w-full px-4 py-3 text-sm font-body resize-none"></textarea>
+              </div>
+              <button
+                id="send-btn"
+                class="w-full py-4 rounded-xl font-body font-semibold text-sm tracking-wider transition-all duration-300 relative overflow-hidden"
+                style="background: linear-gradient(135deg, #2d5a27, #4a7c3f); color: #f5f0e8; border: 1px solid rgba(201, 169, 110, 0.25)"
+              >
+                <span id="send-label">Kirim Pesan 🌿</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="relative z-10 max-w-6xl mx-auto mt-24 pt-8" style="border-top: 1px solid rgba(201, 169, 110, 0.1)">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <p class="font-display text-gold text-xl font-bold tracking-widest">Abil Fadli AHmad</p>
+          <p class="font-body text-cream/35 text-xs">© 2025 — Crafted with passion & strategy</p>
+          <p class="font-body text-cream/35 text-xs">Growth-Driven Digital Marketer</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+    <script>
+      (function () {
+        "use strict";
+
+        /* ── Cursor ── */
+        const cursor = document.getElementById("cursor");
+        const ring = document.getElementById("cursor-ring");
+        let mx = 0,
+          my = 0,
+          rx = 0,
+          ry = 0;
+
+        document.addEventListener("mousemove", (e) => {
+          mx = e.clientX;
+          my = e.clientY;
+          cursor.style.left = mx + "px";
+          cursor.style.top = my + "px";
+        });
+
+        // Lagged ring follow
+        (function animRing() {
+          rx += (mx - rx) * 0.12;
+          ry += (my - ry) * 0.12;
+          ring.style.left = rx + "px";
+          ring.style.top = ry + "px";
+          requestAnimationFrame(animRing);
+        })();
+
+        document.querySelectorAll("a, button, .case-card, .tool-badge").forEach((el) => {
+          el.addEventListener("mouseenter", () => {
+            cursor.style.transform = "translate(-50%,-50%) scale(2)";
+            ring.style.width = "56px";
+            ring.style.height = "56px";
+            ring.style.opacity = ".4";
+          });
+          el.addEventListener("mouseleave", () => {
+            cursor.style.transform = "translate(-50%,-50%) scale(1)";
+            ring.style.width = "36px";
+            ring.style.height = "36px";
+            ring.style.opacity = "1";
+          });
+        });
+
+        /* ── Door animation on first scroll ── */
+        let doorOpened = false;
+        const doorLeft = document.getElementById("door-left");
+        const doorRight = document.getElementById("door-right");
+        const heroContent = document.getElementById("hero-content");
+
+        function openDoor() {
+          if (doorOpened) return;
+          doorOpened = true;
+          doorLeft.classList.add("open-left");
+          doorRight.classList.add("open-right");
+          setTimeout(() => heroContent.classList.add("visible"), 400);
+        }
+
+        // Open on first scroll OR after 3s on page load (accessibility)
+        window.addEventListener("scroll", openDoor, { once: true });
+        setTimeout(openDoor, 2800);
+
+        // On fresh load, also show hero content if door already opened
+        setTimeout(() => heroContent.classList.add("visible"), 3500);
+
+        /* ── Parallax ── */
+        const pBack = document.getElementById("p-trees-back");
+        const pMid = document.getElementById("p-trees-mid");
+        const pFore = document.getElementById("p-trees-fore");
+        const pFog1 = document.getElementById("p-fog1");
+        const pFog2 = document.getElementById("p-fog2");
+        const pMoon = document.getElementById("p-moon");
+        const heroEl = document.getElementById("hero");
+        const heroH = () => heroEl.offsetHeight;
+
+        function updateParallax() {
+          const scrollY = window.scrollY;
+          const h = heroH();
+          if (scrollY > h * 1.2) return; // only within hero area
+          const pct = scrollY / h;
+          pBack.style.transform = `translateY(${scrollY * 0.12}px)`;
+          pMid.style.transform = `translateY(${scrollY * 0.22}px)`;
+          pFore.style.transform = `translateY(${scrollY * 0.35}px)`;
+          pFog1.style.transform = `translateY(${scrollY * -0.08}px)`;
+          pFog2.style.transform = `translateY(${scrollY * -0.14}px)`;
+          if (pMoon) pMoon.style.transform = `translateY(${scrollY * 0.05}px)`;
+        }
+
+        /* Mouse parallax subtle shift on hero */
+        document.getElementById("parallax-wrap").addEventListener("mousemove", (e) => {
+          if (window.scrollY > heroH()) return;
+          const dx = (e.clientX / window.innerWidth - 0.5) * 20;
+          const dy = (e.clientY / window.innerHeight - 0.5) * 10;
+          pBack.style.transform = `translate(${dx * 0.3}px, ${dy * 0.3}px)`;
+          pMid.style.transform = `translate(${dx * 0.6}px, ${dy * 0.5}px)`;
+          pFore.style.transform = `translate(${dx}px,    ${dy * 0.7}px)`;
+        });
+
+        /* ── Scroll handler (parallax + nav + reveal) ── */
+        function onScroll() {
+          updateParallax();
+
+          // Nav style
+          document.getElementById("nav").classList.toggle("scrolled", window.scrollY > 60);
+
+          // Reveal elements
+          document.querySelectorAll(".reveal:not(.in)").forEach((el) => {
+            const r = el.getBoundingClientRect();
+            if (r.top < window.innerHeight * 0.88) el.classList.add("in");
+          });
+
+          // Skill bars
+          document.querySelectorAll(".skill-item:not(.animated)").forEach((item) => {
+            const r = item.getBoundingClientRect();
+            if (r.top < window.innerHeight * 0.85) {
+              item.classList.add("animated");
+              const val = item.dataset.value;
+              const fill = item.querySelector(".bamboo-fill");
+              const pct = item.querySelector(".skill-pct");
+              fill.style.width = val + "%";
+              // count up number
+              let cur = 0;
+              const dur = 1400,
+                step = 16;
+              const inc = val / (dur / step);
+              const t = setInterval(() => {
+                cur = Math.min(cur + inc, val);
+                pct.textContent = Math.round(cur) + "%";
+                if (cur >= val) clearInterval(t);
+              }, step);
+            }
+          });
+        }
+
+        window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll(); // initial
+
+        /* ── Smooth scroll for nav links ── */
+        document.querySelectorAll('a[href^="#"]').forEach((link) => {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const target = document.querySelector(link.getAttribute("href"));
+            if (target) target.scrollIntoView({ behavior: "smooth" });
+            document.getElementById("mobile-menu").classList.add("hidden");
+          });
+        });
+
+        /* ── Mobile menu ── */
+        document.getElementById("mobile-menu-btn").addEventListener("click", () => {
+          document.getElementById("mobile-menu").classList.toggle("hidden");
+        });
+
+        /* ── Tool badge hover ── */
+        document.querySelectorAll(".tool-badge").forEach((b) => {
+          b.addEventListener("mouseenter", () => {
+            b.style.background = "rgba(201,169,110,.2)";
+            b.style.borderColor = "rgba(201,169,110,.6)";
+            b.style.color = "#C9A96E";
+          });
+          b.addEventListener("mouseleave", () => {
+            b.style.background = "rgba(45,90,39,.4)";
+            b.style.borderColor = "rgba(201,169,110,.2)";
+            b.style.color = "#F5F0E8";
+          });
+        });
+
+        /* ── Send button micro-interaction ── */
+        document.getElementById("send-btn").addEventListener("click", function () {
+          const label = document.getElementById("send-label");
+          label.textContent = "Mengirim...";
+          this.style.opacity = ".7";
+          setTimeout(() => {
+            label.textContent = "✓ Pesan Terkirim!";
+            this.style.background = "linear-gradient(135deg,#1f4a1a,#2D5A27)";
+            this.style.opacity = "1";
+            setTimeout(() => {
+              label.textContent = "Kirim Pesan 🌿";
+              this.style.background = "linear-gradient(135deg,#2D5A27,#4A7C3F)";
+            }, 3000);
+          }, 1200);
+        });
+
+        /* ── Fireflies ── */
+        const ffContainer = document.getElementById("fireflies");
+        function spawnFirefly() {
+          const ff = document.createElement("div");
+          ff.className = "firefly";
+          ff.style.left = Math.random() * 100 + "%";
+          ff.style.top = 20 + Math.random() * 70 + "%";
+          ff.style.animationDuration = 2 + Math.random() * 4 + "s";
+          ff.style.animationDelay = Math.random() * 3 + "s";
+          ffContainer.appendChild(ff);
+          setTimeout(() => ff.remove(), 7000);
+        }
+        setInterval(spawnFirefly, 600);
+        for (let i = 0; i < 8; i++) spawnFirefly();
+
+        /* ── Falling leaves ── */
+        const leafShapes = ["M10,0 Q20,5 15,15 Q10,25 0,20 Q5,10 10,0Z", "M8,0 C16,4 18,12 12,18 C6,24 0,18 2,10 C4,4 8,0 8,0Z", "M12,0 Q22,8 16,20 Q8,26 2,16 Q0,8 12,0Z"];
+        function spawnLeaf() {
+          const leaf = document.createElement("div");
+          leaf.className = "leaf";
+          const x = Math.random() * window.innerWidth;
+          leaf.style.left = x + "px";
+          leaf.style.top = "-30px";
+          const dur = 6 + Math.random() * 8;
+          leaf.style.animationDuration = dur + "s";
+          leaf.style.animationDelay = Math.random() * 2 + "s";
+
+          const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          svg.setAttribute("width", "20");
+          svg.setAttribute("height", "26");
+          svg.setAttribute("viewBox", "0 0 24 28");
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute("d", leafShapes[Math.floor(Math.random() * leafShapes.length)]);
+          const hue = 90 + Math.floor(Math.random() * 40);
+          path.setAttribute("fill", `hsl(${hue},50%,30%)`);
+          svg.appendChild(path);
+          leaf.appendChild(svg);
+          document.body.appendChild(leaf);
+          setTimeout(() => leaf.remove(), (dur + 2) * 1000);
+        }
+        setInterval(spawnLeaf, 1800);
+
+        /* ── Mouse-reactive leaf drift ── */
+        let mouseLeafTimer;
+        document.addEventListener("mousemove", (e) => {
+          clearTimeout(mouseLeafTimer);
+          mouseLeafTimer = setTimeout(() => {
+            const leaf = document.createElement("div");
+            leaf.className = "leaf";
+            leaf.style.left = e.clientX + "px";
+            leaf.style.top = e.clientY + "px";
+            leaf.style.animationDuration = "3s";
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("width", "12");
+            svg.setAttribute("height", "16");
+            svg.setAttribute("viewBox", "0 0 24 28");
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", leafShapes[Math.floor(Math.random() * leafShapes.length)]);
+            path.setAttribute("fill", "rgba(74,124,63,.6)");
+            svg.appendChild(path);
+            leaf.appendChild(svg);
+            document.body.appendChild(leaf);
+            setTimeout(() => leaf.remove(), 3500);
+          }, 120);
+        });
+
+        /* ── Reduced motion override ── */
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          openDoor();
+        }
+      })();
+    </script>
+  </body>
+</html>
